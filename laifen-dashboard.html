@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laifen · Meta Ads Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0d14;
+  --surface: #111520;
+  --surface2: #161c2d;
+  --border: #1e2a42;
+  --border2: #253351;
+  --text: #e8edf5;
+  --muted: #5a6a8a;
+  --muted2: #3a4a6a;
+  --tofu: #10d98f;
+  --tofu-dim: #0d3d28;
+  --mofu: #ff7b35;
+  --mofu-dim: #3d2210;
+  --bofu: #f040a0;
+  --bofu-dim: #3d1030;
+  --blue: #4d9fff;
+  --blue-dim: #0d2040;
+  --accent: #4d9fff;
+  --up: #10d98f;
+  --down: #ff4560;
+  --neutral: #5a6a8a;
+  --mono: 'DM Mono', monospace;
+  --sans: 'Inter', sans-serif;
+  --display: 'Syne', sans-serif;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── UPLOAD SCREEN ── */
+#upload-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+#upload-screen::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(77,159,255,0.08) 0%, transparent 70%);
+  top: -100px; left: -100px;
+  pointer-events: none;
+}
+#upload-screen::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(240,64,160,0.06) 0%, transparent 70%);
+  bottom: -50px; right: 0;
+  pointer-events: none;
+}
+
+.upload-logo {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 48px;
+}
+.upload-logo span { color: var(--blue); }
+
+.upload-title {
+  font-family: var(--display);
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+.upload-title em { color: var(--blue); font-style: normal; }
+
+.upload-sub {
+  font-size: 15px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 48px;
+  max-width: 420px;
+  line-height: 1.6;
+}
+
+.drop-zone {
+  width: 100%;
+  max-width: 560px;
+  border: 2px dashed var(--border2);
+  border-radius: 20px;
+  padding: 52px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s;
+  background: var(--surface);
+  position: relative;
+  z-index: 1;
+}
+.drop-zone:hover, .drop-zone.drag { border-color: var(--blue); background: var(--blue-dim); }
+.drop-icon { font-size: 48px; margin-bottom: 16px; }
+.drop-title { font-family: var(--display); font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.drop-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+.drop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--blue);
+  color: #fff;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 12px 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+.drop-btn:hover { opacity: 0.85; }
+#file-input { display: none; }
+
+.upload-info {
+  margin-top: 36px;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+  position: relative; z-index: 1;
+}
+.info-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.info-chip .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+.demo-btn {
+  margin-top: 20px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 10px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative; z-index: 1;
+}
+.demo-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+/* ── DASHBOARD ── */
+#dashboard { display: none; }
+
+/* TOP BAR */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.topbar-brand {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topbar-brand .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
+.period-info {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 12px;
+}
+.period-info span { color: var(--blue); }
+
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.btn-upload-new {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-primary:hover { opacity: 0.85; }
+.btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--muted); }
+.btn-ghost:hover { border-color: var(--blue); color: var(--blue); }
+
+.file-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--tofu);
+  background: var(--tofu-dim);
+  border: 1px solid rgba(16,217,143,0.2);
+  border-radius: 6px;
+  padding: 5px 12px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* TABS */
+.tabs-row {
+  display: flex;
+  gap: 2px;
+  padding: 20px 32px 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  color: var(--muted);
+  border: 1px solid transparent;
+  border-bottom: none;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+}
+.tab:hover { color: var(--text); }
+.tab.active {
+  background: var(--surface);
+  border-color: var(--border);
+  border-bottom-color: var(--surface);
+  color: var(--text);
+  margin-bottom: -1px;
+}
+.tab[data-f="OVERVIEW"].active { color: var(--blue); }
+.tab[data-f="TOFU"].active { color: var(--tofu); }
+.tab[data-f="MOFU"].active { color: var(--mofu); }
+.tab[data-f="BOFU"].active { color: var(--bofu); }
+
+/* CONTENT */
+.content { padding: 28px 32px 60px; }
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* SECTION LABEL */
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 28px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* COMPARE BANNER */
+.compare-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.period-pill {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+.pill-current { background: rgba(77,159,255,0.15); color: var(--blue); border: 1px solid rgba(77,159,255,0.3); }
+.pill-prev { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+.banner-note { font-size: 12px; color: var(--muted); }
+
+/* METRIC GRID */
+.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 900px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.metric-card:hover { border-color: var(--border2); }
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.metric-card.tofu::before { background: linear-gradient(90deg, var(--tofu), transparent); }
+.metric-card.mofu::before { background: linear-gradient(90deg, var(--mofu), transparent); }
+.metric-card.bofu::before { background: linear-gradient(90deg, var(--bofu), transparent); }
+.metric-card.overview::before { background: linear-gradient(90deg, var(--blue), transparent); }
+
+.m-label { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.m-main { font-family: var(--display); font-size: 28px; font-weight: 800; color: var(--text); line-height: 1; }
+.m-sub { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 4px; }
+.m-compare { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.m-prev { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.badge { font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 5px; }
+.badge.up { background: rgba(16,217,143,0.12); color: var(--up); border: 1px solid rgba(16,217,143,0.2); }
+.badge.down { background: rgba(255,69,96,0.12); color: var(--down); border: 1px solid rgba(255,69,96,0.2); }
+.badge.neutral { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+
+/* OVERVIEW TABLE */
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.overview-table { width: 100%; border-collapse: collapse; }
+.overview-table th {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 12px 16px;
+  text-align: right;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.overview-table th:first-child { text-align: left; }
+.overview-table td {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  color: var(--text);
+}
+.overview-table td:first-child { text-align: left; }
+.overview-table tr:last-child td { border-bottom: none; }
+.overview-table tr:hover td { background: rgba(255,255,255,0.02); }
+.funnel-label { display: inline-flex; align-items: center; gap: 8px; }
+.f-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.f-name { font-family: var(--display); font-size: 13px; font-weight: 700; color: var(--text); }
+
+/* WINNING TABLE */
+.winning-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.winning-header-row {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.winning-title { font-family: var(--display); font-size: 14px; font-weight: 700; color: var(--text); }
+.winning-table { width: 100%; border-collapse: collapse; }
+.winning-table th {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 10px 16px;
+  text-align: left;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.winning-table th:not(:first-child):not(:nth-child(2)) { text-align: right; }
+.winning-table td {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.winning-table td:not(:first-child):not(:nth-child(2)) { text-align: right; }
+.winning-table tr:last-child td { border-bottom: none; }
+.winning-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.rank-badge {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 800;
+}
+.r1 { background: rgba(255,183,0,0.15); color: #ffb700; border: 1px solid rgba(255,183,0,0.3); }
+.r2 { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+.r3 { background: rgba(180,100,40,0.1); color: #b46428; border: 1px solid rgba(180,100,40,0.2); }
+.rn { background: var(--bg); color: var(--muted2); border: 1px solid var(--border); }
+
+.ad-name { font-family: var(--sans); font-weight: 600; color: var(--text); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.roas-pill { display: inline-block; padding: 3px 9px; border-radius: 5px; font-family: var(--mono); font-size: 11px; font-weight: 500; }
+.roas-high { background: rgba(16,217,143,0.1); color: var(--tofu); border: 1px solid rgba(16,217,143,0.2); }
+.roas-med { background: rgba(255,183,0,0.1); color: #ffb700; border: 1px solid rgba(255,183,0,0.2); }
+.roas-low { background: rgba(255,69,96,0.1); color: var(--down); border: 1px solid rgba(255,69,96,0.2); }
+
+/* INSIGHT BOX */
+.insight-box {
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-top: 14px;
+  border: 1px solid;
+}
+.insight-box.info { background: rgba(77,159,255,0.06); border-color: rgba(77,159,255,0.2); }
+.insight-box.warn { background: rgba(255,183,0,0.06); border-color: rgba(255,183,0,0.2); }
+.insight-box.success { background: rgba(16,217,143,0.06); border-color: rgba(16,217,143,0.2); }
+.insight-title { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 500; }
+.insight-box.info .insight-title { color: var(--blue); }
+.insight-box.warn .insight-title { color: #ffb700; }
+.insight-box.success .insight-title { color: var(--tofu); }
+.insight-text { font-size: 13px; color: #8a9ab8; line-height: 1.7; }
+.insight-text strong { color: var(--text); font-weight: 600; }
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+
+/* COLUMN MAP MODAL */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+}
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 28px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.modal-title { font-family: var(--display); font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+.map-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.map-label { font-family: var(--mono); font-size: 11px; color: var(--muted); width: 160px; flex-shrink: 0; }
+.map-select {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
+}
+.map-select:focus { outline: none; border-color: var(--blue); }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+.modal-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 9px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+.modal-btn.primary { background: var(--blue); color: #fff; }
+.modal-btn.secondary { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+.modal-btn:hover { opacity: 0.8; }
+
+/* ALERT */
+.alert-bar {
+  background: rgba(255,69,96,0.1);
+  border: 1px solid rgba(255,69,96,0.3);
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 13px;
+  color: var(--down);
+  margin-bottom: 16px;
+  display: none;
+}
+
+/* FOOTER */
+.dash-footer {
+  text-align: center;
+  padding: 20px 32px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted2);
+  border-top: 1px solid var(--border);
+  letter-spacing: 1px;
+}
+
+/* LOADING */
+#loading-overlay {
+  position: fixed; inset: 0;
+  background: rgba(10,13,20,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 888;
+  flex-direction: column;
+  gap: 14px;
+}
+.loading-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 2px; }
+
+.val-pos { color: var(--up); }
+.val-neg { color: var(--down); }
+.val-neut { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">PARSING CSV...</div>
+</div>
+
+<!-- ══ UPLOAD SCREEN ══ -->
+<div id="upload-screen">
+  <div class="upload-logo">LAIFEN · <span>META ADS</span> · DASHBOARD</div>
+  <div class="upload-title">Performance<br><em>Intelligence</em></div>
+  <div class="upload-sub">Upload CSV export dari Meta Ads Manager. Dashboard akan otomatis parse & visualisasi data kamu.</div>
+
+  <div class="drop-zone" id="drop-zone">
+    <div class="drop-icon">📂</div>
+    <div class="drop-title">Drop file CSV di sini</div>
+    <div class="drop-desc">Export dari Meta Ads Manager → Ads level<br>Pastikan include kolom: Campaign Name, Ad Name, Spent, Impressions, Clicks, CTR, CPC, Purchase Value, ATC Value, ROAS</div>
+    <label class="drop-btn" for="file-input">
+      <span>📁</span> Pilih File CSV
+    </label>
+    <input type="file" id="file-input" accept=".csv">
+  </div>
+
+  <div class="upload-info">
+    <div class="info-chip"><div class="dot" style="background:var(--tofu)"></div> TOFU auto-detect dari nama campaign</div>
+    <div class="info-chip"><div class="dot" style="background:var(--mofu)"></div> MOFU mid-funnel classification</div>
+    <div class="info-chip"><div class="dot" style="background:var(--bofu)"></div> BOFU retargeting detection</div>
+    <div class="info-chip"><div class="dot" style="background:var(--blue)"></div> Compare dua periode sekaligus</div>
+  </div>
+
+  <button class="demo-btn" onclick="loadDemoData()">Coba dengan data demo →</button>
+</div>
+
+<!-- COLUMN MAP MODAL -->
+<div class="modal-overlay" id="col-modal" style="display:none">
+  <div class="modal">
+    <div class="modal-title">Map Kolom CSV</div>
+    <div class="modal-sub">Kolom CSV kamu tidak match otomatis. Pilih kolom yang sesuai dari dropdown:</div>
+    <div id="alert-bar" class="alert-bar"></div>
+    <div id="map-rows"></div>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" onclick="cancelModal()">Batal</button>
+      <button class="modal-btn primary" onclick="confirmMapping()">Terapkan Mapping →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboard">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-brand"><div class="logo-dot"></div> LAIFEN · META ADS</div>
+      <div class="period-info" id="topbar-period">Period: <span id="period-display">—</span></div>
+      <div class="file-badge" id="file-badge">—</div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-upload-new btn-ghost" onclick="resetDashboard()">← Ganti File</button>
+      <label class="btn-upload-new btn-primary" for="file-input-2">
+        <span>＋</span> Add Periode Banding
+      </label>
+      <input type="file" id="file-input-2" accept=".csv" style="display:none">
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-row">
+    <div class="tab active" data-f="OVERVIEW" onclick="switchTab('OVERVIEW')">🗂 Overview</div>
+    <div class="tab" data-f="TOFU" onclick="switchTab('TOFU')">🟢 TOFU</div>
+    <div class="tab" data-f="MOFU" onclick="switchTab('MOFU')">🟠 MOFU</div>
+    <div class="tab" data-f="BOFU" onclick="switchTab('BOFU')">🩷 BOFU</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- OVERVIEW PANEL -->
+    <div class="panel active" id="panel-OVERVIEW">
+      <div class="compare-banner">
+        <span class="period-pill pill-current" id="banner-current">—</span>
+        <span style="color:var(--muted)">vs</span>
+        <span class="period-pill pill-prev" id="banner-prev">No comparison file</span>
+        <span class="banner-note">· All values in IDR · Δ% = period-over-period</span>
+      </div>
+
+      <div class="section-label">Full Funnel Summary — Spend, Reach & Clicks</div>
+      <div class="table-card">
+        <table class="overview-table" id="overview-table-1">
+          <thead>
+            <tr>
+              <th>Funnel</th>
+              <th>Spent (Current)</th><th>Spent (Prev)</th><th>Δ%</th>
+              <th>Impressions (Cur)</th><th>Impressions (Prev)</th><th>Δ%</th>
+              <th>Clicks (Cur)</th><th>Clicks (Prev)</th><th>Δ%</th>
+            </tr>
+          </thead>
+          <tbody id="overview-tbody-1"></tbody>
+        </table>
+      </div>
+
+      <div class="section-label" style="margin-top:28px">Full Funnel Summary — Conversion Metrics</div>
+      <div class="table-card">
+        <table class="overview-table" id="overview-table-2">
+          <thead>
+            <tr>
+              <th>Funnel</th>
+              <th>CTR (Cur)</th><th>CTR (Prev)</th><th>Δ%</th>
+              <th>CPC (Cur)</th><th>CPC (Prev)</th><th>Δ%</th>
+              <th>Purchase Val (Cur)</th><th>Purchase Val (Prev)</th><th>Δ%</th>
+              <th>ROAS (Cur)</th><th>ROAS (Prev)</th><th>Δ%</th>
+            </tr>
+          </thead>
+          <tbody id="overview-tbody-2"></tbody>
+        </table>
+      </div>
+
+      <div class="insight-box info" id="overview-insight" style="margin-top:20px">
+        <div class="insight-title">⚡ Overview Insight</div>
+        <div class="insight-text" id="overview-insight-text">Upload data untuk melihat insight otomatis.</div>
+      </div>
+    </div>
+
+    <!-- TOFU PANEL -->
+    <div class="panel" id="panel-TOFU">
+      <div class="compare-banner">
+        <span class="period-pill pill-current" id="tofu-banner-cur">—</span>
+        <span style="color:var(--muted)">vs</span>
+        <span class="period-pill pill-prev" id="tofu-banner-prev">No comparison</span>
+        <span class="banner-note">· TOFU Campaigns · Awareness & ATC Drive</span>
+      </div>
+      <div class="section-label">TOFU Performance Metrics</div>
+      <div class="metrics-grid" id="tofu-metrics"></div>
+      <div class="insight-box warn" id="tofu-insight" style="margin-top:16px">
+        <div class="insight-title">⚠️ TOFU Analysis</div>
+        <div class="insight-text" id="tofu-insight-text">—</div>
+      </div>
+      <div class="section-label" style="margin-top:28px">Winning Ads — TOFU</div>
+      <div class="winning-card">
+        <div class="winning-header-row">
+          <div class="winning-title">🏆 Top Ads by Purchase Value + ROAS</div>
+        </div>
+        <table class="winning-table">
+          <thead><tr><th>#</th><th>Ad Name</th><th>Spent</th><th>Purchase Val</th><th>ROAS</th><th>Impressions</th><th>Clicks</th><th>ATC Value</th></tr></thead>
+          <tbody id="tofu-winning"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MOFU PANEL -->
+    <div class="panel" id="panel-MOFU">
+      <div class="compare-banner">
+        <span class="period-pill pill-current" id="mofu-banner-cur">—</span>
+        <span style="color:var(--muted)">vs</span>
+        <span class="period-pill pill-prev" id="mofu-banner-prev">No comparison</span>
+        <span class="banner-note">· MOFU Campaigns · Mid-Funnel Re-engagement</span>
+      </div>
+      <div class="section-label">MOFU Performance Metrics</div>
+      <div class="metrics-grid" id="mofu-metrics"></div>
+      <div class="insight-box info" id="mofu-insight" style="margin-top:16px">
+        <div class="insight-title">⚡ MOFU Analysis</div>
+        <div class="insight-text" id="mofu-insight-text">—</div>
+      </div>
+      <div class="section-label" style="margin-top:28px">Winning Ads — MOFU</div>
+      <div class="winning-card">
+        <div class="winning-header-row">
+          <div class="winning-title">🏆 Top Ads by Purchase Value + ROAS</div>
+        </div>
+        <table class="winning-table">
+          <thead><tr><th>#</th><th>Ad Name</th><th>Spent</th><th>Purchase Val</th><th>ROAS</th><th>Impressions</th><th>Clicks</th><th>ATC Value</th></tr></thead>
+          <tbody id="mofu-winning"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BOFU PANEL -->
+    <div class="panel" id="panel-BOFU">
+      <div class="compare-banner">
+        <span class="period-pill pill-current" id="bofu-banner-cur">—</span>
+        <span style="color:var(--muted)">vs</span>
+        <span class="period-pill pill-prev" id="bofu-banner-prev">No comparison</span>
+        <span class="banner-note">· BOFU Campaigns · Retargeting & Close</span>
+      </div>
+      <div class="section-label">BOFU Performance Metrics</div>
+      <div class="metrics-grid" id="bofu-metrics"></div>
+      <div class="insight-box warn" id="bofu-insight" style="margin-top:16px">
+        <div class="insight-title">⚠️ BOFU Analysis</div>
+        <div class="insight-text" id="bofu-insight-text">—</div>
+      </div>
+      <div class="section-label" style="margin-top:28px">Winning Ads — BOFU</div>
+      <div class="winning-card">
+        <div class="winning-header-row">
+          <div class="winning-title">🏆 Top Ads by Purchase Value + ROAS</div>
+        </div>
+        <table class="winning-table">
+          <thead><tr><th>#</th><th>Ad Name</th><th>Spent</th><th>Purchase Val</th><th>ROAS</th><th>Impressions</th><th>Clicks</th><th>ATC Value</th></tr></thead>
+          <tbody id="bofu-winning"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="dash-footer" id="dash-footer">LAIFEN · META ADS PERFORMANCE DASHBOARD · DATA: META ADS MANAGER</div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let currentData = null;   // parsed rows current period
+let prevData = null;      // parsed rows prev period
+let currentFileName = '';
+let prevFileName = '';
+let csvHeaders = [];
+let pendingRows = null;
+let colMapping = {};
+
+// ─────────────────────────────────────────────
+// COLUMN ALIASES — auto-map Meta export headers
+// ─────────────────────────────────────────────
+const FIELD_ALIASES = {
+  ad_name:    ['ad name','ad_name','name','iklan','nama iklan'],
+  campaign:   ['campaign name','campaign_name','kampanye','campaign'],
+  adset:      ['ad set name','adset name','adset_name','ad set'],
+  spent:      ['amount spent (idr)','amount spent','spent','biaya','amount spent (usd)','spend','cost'],
+  impressions:['impressions','impresi'],
+  clicks:     ['link clicks','clicks','klik','link click'],
+  ctr:        ['ctr (link click-through rate)','ctr','click-through rate'],
+  cpc:        ['cpc (cost per link click)','cpc','cost per click'],
+  atc_value:  ['adds to cart value','add to cart value','atc value','nilai tambah ke keranjang','value of adds to cart','shopee adds to cart value'],
+  purchase_value: ['purchase value','purchases value','nilai pembelian','shopee purchase roas value','value of shopee purchases','shopee purchase value'],
+  roas:       ['purchase roas','roas','shopee purchase roas','return on ad spend'],
+  date_start: ['reporting starts','date start','start date','tanggal mulai'],
+  date_stop:  ['reporting ends','date stop','end date','tanggal selesai'],
+};
+
+function detectHeader(headers, fieldKey) {
+  const aliases = FIELD_ALIASES[fieldKey];
+  const hLower = headers.map(h => h.toLowerCase().trim());
+  for (const alias of aliases) {
+    const idx = hLower.indexOf(alias.toLowerCase());
+    if (idx !== -1) return headers[idx];
+  }
+  return null;
+}
+
+// ─────────────────────────────────────────────
+// PARSE CSV
+// ─────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const headers = parseCSVLine(lines[0]);
+  csvHeaders = headers;
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = parseCSVLine(lines[i]);
+    if (vals.length < 2) continue;
+    const row = {};
+    headers.forEach((h, idx) => { row[h] = vals[idx] || ''; });
+    rows.push(row);
+  }
+  return rows;
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '';
+  let inQuote = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') { inQuote = !inQuote; continue; }
+    if (ch === ',' && !inQuote) { result.push(cur.trim()); cur = ''; continue; }
+    cur += ch;
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+// ─────────────────────────────────────────────
+// FUNNEL CLASSIFICATION
+// ─────────────────────────────────────────────
+function classifyFunnel(row, mapping) {
+  const campaign = (row[mapping.campaign] || '').toLowerCase();
+  const adset = (row[mapping.adset] || '').toLowerCase();
+  const combined = campaign + ' ' + adset;
+  if (/\bbofu\b|retarget|remarketing|bottom.?funnel|bottom funnel/.test(combined)) return 'BOFU';
+  if (/\bmofu\b|middle.?funnel|mid.?funnel|re.?engage|reengag|consideration/.test(combined)) return 'MOFU';
+  if (/\btofu\b|top.?funnel|awareness|prospecting/.test(combined)) return 'TOFU';
+  // fallback — try ad name
+  const adName = (row[mapping.ad_name] || '').toLowerCase();
+  if (/bofu|retarget/.test(adName)) return 'BOFU';
+  if (/mofu/.test(adName)) return 'MOFU';
+  if (/tofu/.test(adName)) return 'TOFU';
+  return 'TOFU'; // default
+}
+
+// ─────────────────────────────────────────────
+// NUM HELPERS
+// ─────────────────────────────────────────────
+function num(val) {
+  if (!val || val === '—' || val === '') return 0;
+  return parseFloat(String(val).replace(/[^0-9.\-]/g, '')) || 0;
+}
+function pct(a, b) {
+  if (!b) return null;
+  return ((a - b) / b) * 100;
+}
+function fmtIDR(v) {
+  if (!v) return '—';
+  if (v >= 1e9) return 'Rp ' + (v/1e9).toFixed(2) + 'B';
+  if (v >= 1e6) return 'Rp ' + (v/1e6).toFixed(2) + 'M';
+  if (v >= 1e3) return 'Rp ' + Math.round(v).toLocaleString('id-ID');
+  return 'Rp ' + v.toFixed(0);
+}
+function fmtNum(v) {
+  if (!v) return '—';
+  return v.toLocaleString('id-ID');
+}
+function fmtPct(v) {
+  if (v === null || v === undefined) return '—';
+  return (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+}
+function deltaBadge(cur, prev, inverse = false) {
+  if (!prev) return '<span class="badge neutral">—</span>';
+  const d = pct(cur, prev);
+  const up = inverse ? d < 0 : d >= 0;
+  const cls = d === 0 ? 'neutral' : (up ? 'up' : 'down');
+  const arrow = d >= 0 ? '▲' : '▼';
+  return `<span class="badge ${cls}">${arrow} ${Math.abs(d).toFixed(1)}%</span>`;
+}
+function roasPill(v) {
+  if (!v || v === 0) return '—';
+  const cls = v >= 10 ? 'roas-high' : v >= 3 ? 'roas-med' : 'roas-low';
+  return `<span class="roas-pill ${cls}">${v.toFixed(2)}×</span>`;
+}
+
+// ─────────────────────────────────────────────
+// AGGREGATE BY FUNNEL
+// ─────────────────────────────────────────────
+function aggregateFunnel(rows, mapping) {
+  const funnels = { TOFU: [], MOFU: [], BOFU: [] };
+  rows.forEach(row => {
+    const f = classifyFunnel(row, mapping);
+    funnels[f].push(row);
+  });
+  const result = {};
+  for (const [f, frows] of Object.entries(funnels)) {
+    const spent = frows.reduce((s, r) => s + num(r[mapping.spent]), 0);
+    const impr = frows.reduce((s, r) => s + num(r[mapping.impressions]), 0);
+    const clicks = frows.reduce((s, r) => s + num(r[mapping.clicks]), 0);
+    const atc = frows.reduce((s, r) => s + num(r[mapping.atc_value]), 0);
+    const pval = frows.reduce((s, r) => s + num(r[mapping.purchase_value]), 0);
+    const ctr = impr ? (clicks / impr) * 100 : 0;
+    const cpc = clicks ? spent / clicks : 0;
+    const roas = spent ? pval / spent : 0;
+    result[f] = { spent, impr, clicks, atc, pval, ctr, cpc, roas, rows: frows };
+  }
+  return result;
+}
+
+// ─────────────────────────────────────────────
+// DETECT DATE RANGE
+// ─────────────────────────────────────────────
+function detectPeriod(rows, mapping) {
+  const dates = rows.map(r => r[mapping.date_start]).filter(Boolean);
+  const datesEnd = rows.map(r => r[mapping.date_stop]).filter(Boolean);
+  if (dates.length && datesEnd.length) {
+    const sorted = dates.sort();
+    const sortedEnd = datesEnd.sort();
+    return sorted[0] + ' — ' + sortedEnd[sortedEnd.length - 1];
+  }
+  return 'Uploaded File';
+}
+
+// ─────────────────────────────────────────────
+// RENDER DASHBOARD
+// ─────────────────────────────────────────────
+function renderDashboard() {
+  const m = colMapping;
+  const curAgg = aggregateFunnel(currentData, m);
+  const prevAgg = prevData ? aggregateFunnel(prevData, m) : null;
+
+  const curPeriod = detectPeriod(currentData, m);
+  const prevPeriod = prevData ? detectPeriod(prevData, m) : null;
+
+  // Update header
+  document.getElementById('period-display').textContent = curPeriod;
+  document.getElementById('file-badge').textContent = '📄 ' + currentFileName;
+  ['banner-current','tofu-banner-cur','mofu-banner-cur','bofu-banner-cur'].forEach(id => {
+    document.getElementById(id).textContent = curPeriod;
+  });
+  const prevLabel = prevPeriod || 'No comparison file';
+  ['banner-prev','tofu-banner-prev','mofu-banner-prev','bofu-banner-prev'].forEach(id => {
+    document.getElementById(id).textContent = prevLabel;
+  });
+
+  // OVERVIEW TABLE 1: Spend, Impressions, Clicks
+  const tbody1 = document.getElementById('overview-tbody-1');
+  tbody1.innerHTML = '';
+  const funnels = ['TOFU','MOFU','BOFU'];
+  const fColors = { TOFU: 'var(--tofu)', MOFU: 'var(--mofu)', BOFU: 'var(--bofu)' };
+
+  funnels.forEach(f => {
+    const c = curAgg[f];
+    const p = prevAgg ? prevAgg[f] : null;
+    tbody1.innerHTML += `<tr>
+      <td><span class="funnel-label"><span class="f-dot" style="background:${fColors[f]}"></span><span class="f-name">${f}</span></span></td>
+      <td>${fmtIDR(c.spent)}</td>
+      <td>${p ? fmtIDR(p.spent) : '—'}</td>
+      <td>${deltaBadge(c.spent, p?.spent)}</td>
+      <td>${fmtNum(c.impr)}</td>
+      <td>${p ? fmtNum(p.impr) : '—'}</td>
+      <td>${deltaBadge(c.impr, p?.impr)}</td>
+      <td>${fmtNum(c.clicks)}</td>
+      <td>${p ? fmtNum(p.clicks) : '—'}</td>
+      <td>${deltaBadge(c.clicks, p?.clicks)}</td>
+    </tr>`;
+  });
+
+  // OVERVIEW TABLE 2: CTR, CPC, Purchase Value, ROAS
+  const tbody2 = document.getElementById('overview-tbody-2');
+  tbody2.innerHTML = '';
+  funnels.forEach(f => {
+    const c = curAgg[f];
+    const p = prevAgg ? prevAgg[f] : null;
+    tbody2.innerHTML += `<tr>
+      <td><span class="funnel-label"><span class="f-dot" style="background:${fColors[f]}"></span><span class="f-name">${f}</span></span></td>
+      <td>${c.ctr.toFixed(2)}%</td>
+      <td>${p ? p.ctr.toFixed(2)+'%' : '—'}</td>
+      <td>${deltaBadge(c.ctr, p?.ctr)}</td>
+      <td>${fmtIDR(c.cpc)}</td>
+      <td>${p ? fmtIDR(p.cpc) : '—'}</td>
+      <td>${deltaBadge(c.cpc, p?.cpc, true)}</td>
+      <td>${fmtIDR(c.pval)}</td>
+      <td>${p ? fmtIDR(p.pval) : '—'}</td>
+      <td>${deltaBadge(c.pval, p?.pval)}</td>
+      <td>${c.roas.toFixed(2)}×</td>
+      <td>${p ? p.roas.toFixed(2)+'×' : '—'}</td>
+      <td>${deltaBadge(c.roas, p?.roas)}</td>
+    </tr>`;
+  });
+
+  // OVERVIEW INSIGHT
+  const topFunnel = funnels.reduce((a, b) => curAgg[a].roas > curAgg[b].roas ? a : b);
+  document.getElementById('overview-insight-text').innerHTML =
+    `<strong>${topFunnel} adalah top performer minggu ini</strong> dengan ROAS ${curAgg[topFunnel].roas.toFixed(2)}×. ` +
+    `Total spend: ${fmtIDR(funnels.reduce((s,f) => s + curAgg[f].spent, 0))}. ` +
+    `Total purchase value: ${fmtIDR(funnels.reduce((s,f) => s + curAgg[f].pval, 0))}.`;
+
+  // FUNNEL PANELS
+  funnels.forEach(f => {
+    renderFunnelPanel(f.toLowerCase(), f, curAgg[f], prevAgg?.[f] || null);
+  });
+}
+
+function renderFunnelPanel(panelId, fKey, cur, prev) {
+  const color = { TOFU: 'tofu', MOFU: 'mofu', BOFU: 'bofu' }[fKey];
+  const metrics = [
+    { label: 'Amount Spent', main: fmtIDR(cur.spent), sub: 'Total spend', cval: cur.spent, pval: prev?.spent, inv: false },
+    { label: 'Impressions', main: fmtNum(cur.impr), sub: 'Total reach', cval: cur.impr, pval: prev?.impr, inv: false },
+    { label: 'Link Clicks', main: fmtNum(cur.clicks), sub: 'Total clicks', cval: cur.clicks, pval: prev?.clicks, inv: false },
+    { label: 'CTR', main: cur.ctr.toFixed(2)+'%', sub: 'Click-through rate', cval: cur.ctr, pval: prev?.ctr, inv: false },
+    { label: 'CPC', main: fmtIDR(cur.cpc), sub: 'Cost per click', cval: cur.cpc, pval: prev?.cpc, inv: true },
+    { label: 'ATC Value', main: fmtIDR(cur.atc), sub: 'Add to cart value', cval: cur.atc, pval: prev?.atc, inv: false },
+    { label: 'Purchase Value', main: fmtIDR(cur.pval), sub: 'Conversion value', cval: cur.pval, pval: prev?.pval, inv: false },
+    { label: 'ROAS', main: cur.roas.toFixed(2)+'×', sub: 'Return on ad spend', cval: cur.roas, pval: prev?.roas, inv: false },
+  ];
+
+  const grid = document.getElementById(fKey.toLowerCase() + '-metrics');
+  grid.innerHTML = metrics.map(m => {
+    const prevDisplay = m.pval !== undefined && m.pval !== null ? `Prev: ${m.label.includes('Spent') || m.label.includes('CPC') || m.label.includes('ATC') || m.label.includes('Purchase') ? fmtIDR(m.pval) : m.label === 'CTR' ? m.pval.toFixed(2)+'%' : m.label === 'ROAS' ? m.pval.toFixed(2)+'×' : fmtNum(m.pval)}` : '';
+    const badge = m.pval !== undefined ? deltaBadge(m.cval, m.pval, m.inv) : '';
+    return `<div class="metric-card ${color}">
+      <div class="m-label">${m.label}</div>
+      <div class="m-main">${m.main}</div>
+      <div class="m-sub">${m.sub}</div>
+      <div class="m-compare">
+        <span class="m-prev">${prevDisplay}</span>
+        ${badge}
+      </div>
+    </div>`;
+  }).join('');
+
+  // WINNING TABLE
+  const rows = cur.rows || [];
+  const sorted = [...rows].sort((a, b) => num(b[colMapping.purchase_value]) - num(a[colMapping.purchase_value]));
+  const top = sorted.slice(0, 6);
+  const rankClass = ['r1','r2','r3','rn','rn','rn'];
+  const winning = document.getElementById(fKey.toLowerCase() + '-winning');
+  if (top.length === 0) {
+    winning.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:32px">Tidak ada data ${fKey}</td></tr>`;
+  } else {
+    winning.innerHTML = top.map((row, i) => {
+      const sp = num(row[colMapping.spent]);
+      const pv = num(row[colMapping.purchase_value]);
+      const ro = sp ? pv / sp : 0;
+      const atcv = num(row[colMapping.atc_value]);
+      const impr = num(row[colMapping.impressions]);
+      const cl = num(row[colMapping.clicks]);
+      return `<tr>
+        <td><span class="rank-badge ${rankClass[i]}">${i+1}</span></td>
+        <td><span class="ad-name" title="${row[colMapping.ad_name] || '—'}">${row[colMapping.ad_name] || '—'}</span></td>
+        <td>${fmtIDR(sp)}</td>
+        <td style="color:var(--up);font-weight:600">${fmtIDR(pv)}</td>
+        <td>${roasPill(ro)}</td>
+        <td>${impr ? fmtNum(impr) : '—'}</td>
+        <td>${cl ? fmtNum(cl) : '—'}</td>
+        <td>${atcv ? fmtIDR(atcv) : '—'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // INSIGHT
+  const insightEl = document.getElementById(fKey.toLowerCase() + '-insight-text');
+  if (rows.length > 0 && top.length > 0) {
+    const topRow = top[0];
+    const topName = topRow[colMapping.ad_name] || 'Top Ad';
+    const topRoas = cur.roas.toFixed(2);
+    const roasDir = prev && cur.roas > prev.roas ? `naik dari ${prev.roas.toFixed(2)}×` : prev ? `turun dari ${prev.roas.toFixed(2)}×` : '';
+    insightEl.innerHTML = `<strong>${fKey} ROAS: ${topRoas}×</strong> ${roasDir}. ` +
+      `Top ad: <strong>${topName}</strong> dengan purchase value ${fmtIDR(num(topRow[colMapping.purchase_value]))}. ` +
+      `Total ${rows.length} ads aktif di ${fKey} — ` +
+      (fKey === 'TOFU' ? 'Focus KPI: ATC Rate & CPC, bukan ROAS.' :
+       fKey === 'MOFU' ? 'Optimasi: scale ads dengan ROAS tertinggi.' :
+       'Alert: monitor audience exhaustion, expand retargeting window jika ROAS drop.');
+  } else {
+    insightEl.textContent = `Tidak ada data ${fKey} terdeteksi. Pastikan nama campaign/adset mengandung kata "${fKey}".`;
+  }
+}
+
+// ─────────────────────────────────────────────
+// COLUMN MAPPING MODAL
+// ─────────────────────────────────────────────
+function buildMapping(headers) {
+  const mapping = {};
+  const missingFields = [];
+  for (const [field, _] of Object.entries(FIELD_ALIASES)) {
+    const found = detectHeader(headers, field);
+    if (found) mapping[field] = found;
+    else missingFields.push(field);
+  }
+  return { mapping, missingFields };
+}
+
+function showMappingModal(headers, onConfirm) {
+  const modal = document.getElementById('col-modal');
+  modal.style.display = 'flex';
+  const mapRows = document.getElementById('map-rows');
+
+  const fieldLabels = {
+    ad_name: 'Ad Name', campaign: 'Campaign Name', adset: 'Ad Set Name',
+    spent: 'Amount Spent', impressions: 'Impressions', clicks: 'Link Clicks',
+    ctr: 'CTR', cpc: 'CPC', atc_value: 'ATC Value',
+    purchase_value: 'Purchase Value', roas: 'ROAS',
+    date_start: 'Date Start', date_stop: 'Date Stop'
+  };
+
+  const { mapping } = buildMapping(headers);
+
+  mapRows.innerHTML = Object.entries(fieldLabels).map(([field, label]) => {
+    const cur = mapping[field] || '';
+    const opts = headers.map(h => `<option value="${h}" ${h === cur ? 'selected' : ''}>${h}</option>`).join('');
+    return `<div class="map-row">
+      <div class="map-label">${label}</div>
+      <select class="map-select" data-field="${field}">
+        <option value="">— Skip —</option>
+        ${opts}
+      </select>
+    </div>`;
+  }).join('');
+
+  window._modalConfirm = onConfirm;
+}
+
+function confirmMapping() {
+  const selects = document.querySelectorAll('.map-select[data-field]');
+  const m = {};
+  selects.forEach(s => { if (s.value) m[s.dataset.field] = s.value; });
+  colMapping = m;
+  document.getElementById('col-modal').style.display = 'none';
+  if (window._modalConfirm) window._modalConfirm();
+}
+
+function cancelModal() {
+  document.getElementById('col-modal').style.display = 'none';
+  hideLoading();
+}
+
+// ─────────────────────────────────────────────
+// FILE HANDLING
+// ─────────────────────────────────────────────
+function handleFile(file, isPrev = false) {
+  showLoading();
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    setTimeout(() => {
+      const rows = parseCSV(e.target.result);
+      if (!rows.length) {
+        hideLoading();
+        alert('File CSV tidak valid atau kosong.');
+        return;
+      }
+
+      if (!isPrev) {
+        currentFileName = file.name;
+        // Try auto-mapping
+        const { mapping, missingFields } = buildMapping(csvHeaders);
+        const required = ['ad_name','spent','impressions','clicks','purchase_value'];
+        const missing = required.filter(f => !mapping[f]);
+
+        if (missing.length > 0) {
+          // Show modal
+          pendingRows = rows;
+          colMapping = mapping;
+          hideLoading();
+          showMappingModal(csvHeaders, () => {
+            currentData = rows;
+            showDashboard();
+            renderDashboard();
+          });
+        } else {
+          colMapping = mapping;
+          currentData = rows;
+          showDashboard();
+          renderDashboard();
+          hideLoading();
+        }
+      } else {
+        prevData = rows;
+        prevFileName = file.name;
+        renderDashboard();
+        hideLoading();
+      }
+    }, 400);
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) handleFile(e.target.files[0], false);
+});
+document.getElementById('file-input-2').addEventListener('change', e => {
+  if (e.target.files[0]) handleFile(e.target.files[0], true);
+});
+
+// DRAG DROP
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('drag');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0], false);
+});
+
+// ─────────────────────────────────────────────
+// UI HELPERS
+// ─────────────────────────────────────────────
+function showDashboard() {
+  document.getElementById('upload-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+}
+function resetDashboard() {
+  currentData = null; prevData = null;
+  document.getElementById('upload-screen').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('file-input').value = '';
+  document.getElementById('file-input-2').value = '';
+}
+function showLoading() { document.getElementById('loading-overlay').style.display = 'flex'; }
+function hideLoading() { document.getElementById('loading-overlay').style.display = 'none'; }
+function switchTab(f) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[data-f="${f}"]`).classList.add('active');
+  document.getElementById(`panel-${f}`).classList.add('active');
+}
+
+// ─────────────────────────────────────────────
+// DEMO DATA
+// ─────────────────────────────────────────────
+function loadDemoData() {
+  showLoading();
+  const demo = [
+    'Campaign Name,Ad Set Name,Ad Name,Amount Spent (IDR),Impressions,Link Clicks,CTR (Link Click-Through Rate),CPC (Cost Per Link Click),Adds to Cart Value,Purchase Value,Purchase ROAS,Reporting Starts,Reporting Ends',
+    'TOFU - Awareness Broad,TOFU - Lookalike 1%,t1 pro - kiwi,287364,3207,48,1.50%,5987,4680000,1990000,6.93,2026-05-11,2026-05-17',
+    'TOFU - Awareness Broad,TOFU - Lookalike 2%,estherutami - se lite,288720,1809,27,1.49%,10693,7380000,1120000,3.88,2026-05-11,2026-05-17',
+    'TOFU - Awareness Broad,TOFU - Interest,t1 pro - lifestyle,350000,2500,42,1.68%,8333,3200000,0,0,2026-05-11,2026-05-17',
+    'TOFU - Awareness Broad,TOFU - Interest,se lite - ugc,420000,5800,60,1.03%,7000,5600000,0,0,2026-05-11,2026-05-17',
+    'TOFU - Awareness Broad,TOFU - Interest,mini - unboxing,280000,3900,50,1.28%,5600,3100000,0,0,2026-05-11,2026-05-17',
+    'MOFU - Retarget ATC,MOFU - ATC 7D,fidahana - layout se lite,234200,4100,38,0.93%,6163,12400000,9950000,42.48,2026-05-11,2026-05-17',
+    'MOFU - Retarget ATC,MOFU - ATC 14D,laifen mini vs conventional hairdryer,380000,12800,90,0.70%,4222,14900000,8290000,21.82,2026-05-11,2026-05-17',
+    'MOFU - Retarget ATC,MOFU - Engagement,premium - hemat 2jt,62000,800,18,2.25%,3444,3290000,2830000,45.65,2026-05-11,2026-05-17',
+    'MOFU - Retarget ATC,MOFU - Video View,kol - se lite comparison,180000,6500,55,0.85%,3273,8200000,5400000,30.00,2026-05-11,2026-05-17',
+    'MOFU - Retarget ATC,MOFU - Interest,testimonial bundle,95000,3200,28,0.88%,3393,4100000,2900000,30.53,2026-05-11,2026-05-17',
+    'BOFU - Promo Close,BOFU - Purchase 7D,pay day - hair dryer 2,43655,1500,20,1.33%,2183,1100000,1120000,25.66,2026-05-11,2026-05-17',
+    'BOFU - Promo Close,BOFU - Purchase 14D,pay day - hair dryer 1,78152,1800,25,1.39%,3126,980000,1120000,14.33,2026-05-11,2026-05-17',
+    'BOFU - Promo Close,BOFU - ATC 30D,compare mini,196705,937,4,0.43%,49176,1120000,1120000,5.69,2026-05-11,2026-05-17',
+    'BOFU - Promo Close,BOFU - ATC 30D,5.5 - se lite,199964,1743,16,0.92%,12498,1120000,1120000,5.60,2026-05-11,2026-05-17',
+  ].join('\n');
+
+  setTimeout(() => {
+    const rows = parseCSV(demo);
+    const { mapping } = buildMapping(csvHeaders);
+    colMapping = mapping;
+    currentData = rows;
+    currentFileName = 'demo-data-laifen.csv';
+    showDashboard();
+    renderDashboard();
+    hideLoading();
+  }, 600);
+}
+</script>
+</body>
+</html>
