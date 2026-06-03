@@ -438,7 +438,7 @@ body { font-family: var(--sans); background: linear-gradient(180deg, #F6F6F6 0%,
   font-size: 11px;
   font-weight: 800;
 }
-.r1 { background: rgba(255,183,0,0.15); color: #ffb700; border: 1px solid rgba(255,183,0,0.3); }
+.r1 { background: rgba(255,183,0,0.15); color: #000000; border: 1px solid rgba(255,183,0,0.3); }
 .r2 { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
 .r3 { background: rgba(180,100,40,0.1); color: #b46428; border: 1px solid rgba(180,100,40,0.2); }
 .rn { background: var(--bg); color: var(--muted2); border: 1px solid var(--border); }
@@ -446,7 +446,7 @@ body { font-family: var(--sans); background: linear-gradient(180deg, #F6F6F6 0%,
 .ad-name { font-family: var(--sans); font-weight: 600; color: var(--text); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .roas-pill { display: inline-block; padding: 3px 9px; border-radius: 5px; font-family: var(--mono); font-size: 11px; font-weight: 500; }
 .roas-high { background: rgba(16,217,143,0.1); color: var(--tofu); border: 1px solid rgba(16,217,143,0.2); }
-.roas-med { background: rgba(255,183,0,0.1); color: #ffb700; border: 1px solid rgba(255,183,0,0.2); }
+.roas-med { background: rgba(255,183,0,0.1); color: #000000; border: 1px solid rgba(255,183,0,0.2); }
 .roas-low { background: rgba(255,69,96,0.1); color: var(--down); border: 1px solid rgba(255,69,96,0.2); }
 
 /* INSIGHT BOX */
@@ -461,9 +461,9 @@ body { font-family: var(--sans); background: linear-gradient(180deg, #F6F6F6 0%,
 .insight-box.success { background: rgba(16,217,143,0.06); border-color: rgba(16,217,143,0.2); }
 .insight-title { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 500; }
 .insight-box.info .insight-title { color: var(--blue); }
-.insight-box.warn .insight-title { color: #ffb700; }
+.insight-box.warn .insight-title { color: #000000; }
 .insight-box.success .insight-title { color: var(--tofu); }
-.insight-text { font-size: 13px; color: #8a9ab8; line-height: 1.7; }
+.insight-text { font-size: 13px; color: #000000; line-height: 1.7; }
 .insight-text strong { color: var(--text); font-weight: 600; }
 
 /* EMPTY STATE */
@@ -671,6 +671,7 @@ body { font-family: var(--sans); background: linear-gradient(180deg, #F6F6F6 0%,
               <th>Spent (Current)</th><th>Spent (Prev)</th><th>Δ%</th>
               <th>Impressions (Cur)</th><th>Impressions (Prev)</th><th>Δ%</th>
               <th>Clicks (Cur)</th><th>Clicks (Prev)</th><th>Δ%</th>
+              <th>Insight</th><th>Next Plan</th>
             </tr>
           </thead>
           <tbody id="overview-tbody-1"></tbody>
@@ -952,6 +953,22 @@ function detectPeriod(rows, mapping) {
   return 'Uploaded File';
 }
 
+// determine whether the uploaded period is weekly or monthly (fallbacks)
+function getPeriodType(rows, mapping) {
+  try {
+    const starts = rows.map(r => r[mapping.date_start]).filter(Boolean).map(d => new Date(d));
+    const ends = rows.map(r => r[mapping.date_stop]).filter(Boolean).map(d => new Date(d));
+    if (!starts.length || !ends.length) return 'weekly';
+    const minStart = new Date(Math.min(...starts.map(d => d.getTime())));
+    const maxEnd = new Date(Math.max(...ends.map(d => d.getTime())));
+    const days = Math.round((maxEnd - minStart) / (1000*60*60*24)) + 1;
+    if (days >= 25) return 'monthly';
+    return 'weekly';
+  } catch (e) {
+    return 'weekly';
+  }
+}
+
 // ─────────────────────────────────────────────
 // RENDER DASHBOARD
 // ─────────────────────────────────────────────
@@ -980,9 +997,19 @@ function renderDashboard() {
   const funnels = ['TOFU','MOFU','BOFU'];
   const fColors = { TOFU: 'var(--tofu)', MOFU: 'var(--mofu)', BOFU: 'var(--bofu)' };
 
+  const periodType = getPeriodType(currentData, m); // weekly or monthly
+
   funnels.forEach(f => {
     const c = curAgg[f];
     const p = prevAgg ? prevAgg[f] : null;
+    // create insight and next plan based on period type
+    const insight = periodType === 'monthly'
+      ? `Monthly insight: ${f} generated — fokus scale top ads.`
+      : `${f} weekly insight: review CTR & CPC.`;
+    const nextPlan = periodType === 'monthly'
+      ? `Next month: allocate more budget ke ${f} top 20% ads.`
+      : `Next week: optimize creative + expand audience.`;
+
     tbody1.innerHTML += `<tr>
       <td><span class="funnel-label"><span class="f-dot" style="background:${fColors[f]}"></span><span class="f-name">${f}</span></span></td>
       <td>${fmtIDR(c.spent)}</td>
@@ -994,6 +1021,8 @@ function renderDashboard() {
       <td>${fmtNum(c.clicks)}</td>
       <td>${p ? fmtNum(p.clicks) : '—'}</td>
       <td>${deltaBadge(c.clicks, p?.clicks)}</td>
+      <td>${insight}</td>
+      <td>${nextPlan}</td>
     </tr>`;
   });
 
