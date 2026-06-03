@@ -806,10 +806,10 @@ const FIELD_ALIASES = {
   impressions:['impressions','impresi'],
   clicks:     ['link clicks','clicks','klik','link click'],
   ctr:        ['ctr (link click-through rate)','ctr','click-through rate'],
-  cpc:        ['cpc (cost per link click)','cpc','cost per click'],
-  atc_value:  ['adds to cart value','add to cart value','atc value','nilai tambah ke keranjang','value of adds to cart','shopee adds to cart value'],
-  purchase_value: ['purchase value','purchases value','nilai pembelian','shopee purchase roas value','value of shopee purchases','shopee purchase value'],
-  roas:       ['purchase roas','roas','shopee purchase roas','return on ad spend'],
+  cpc:        ['cpc (cost per link click)','cpc','cost per click','cost per link click','cpc (cost per link click)'],
+  atc_value:  ['adds to cart value','add to cart value','atc value','nilai tambah ke keranjang','value of adds to cart','shopee adds to cart value','adds to cart conversion value','atc conversion value'],
+  purchase_value: ['purchase value','purchases value','nilai pembelian','shopee purchase roas value','value of shopee purchases','shopee purchase value','purchase conversion value','purchases conversion value'],
+  roas:       ['purchase roas','roas','shopee purchase roas','return on ad spend','catalog_segment_value_omni_purchase_roas','omni_purchase_roas'],
   date_start: ['reporting starts','date start','start date','tanggal mulai'],
   date_stop:  ['reporting ends','date stop','end date','tanggal selesai'],
 };
@@ -818,8 +818,18 @@ function detectHeader(headers, fieldKey) {
   const aliases = FIELD_ALIASES[fieldKey];
   const hLower = headers.map(h => h.toLowerCase().trim());
   for (const alias of aliases) {
-    const idx = hLower.indexOf(alias.toLowerCase());
+    const aliasLower = alias.toLowerCase().trim();
+    const idx = hLower.indexOf(aliasLower);
     if (idx !== -1) return headers[idx];
+  }
+  // fallback: match by containing keywords for more flexible CSV headers
+  for (const alias of aliases) {
+    const aliasLower = alias.toLowerCase().trim();
+    for (let i = 0; i < hLower.length; i++) {
+      if (hLower[i].includes(aliasLower) && aliasLower.length > 2) {
+        return headers[i];
+      }
+    }
   }
   return null;
 }
