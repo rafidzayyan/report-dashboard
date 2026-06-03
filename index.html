@@ -7,26 +7,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0a0d14;
-  --surface: #111520;
-  --surface2: #161c2d;
-  --border: #1e2a42;
-  --border2: #253351;
-  --text: #e8edf5;
+  --bg: #F6F6F6;
+  --surface: rgba(255,255,255,0.96);
+  --surface2: #eff4ff;
+  --border: rgba(63,82,227,0.15);
+  --border2: rgba(63,82,227,0.25);
+  --text: #0b1225;
   --muted: #5a6a8a;
   --muted2: #3a4a6a;
   --tofu: #10d98f;
-  --tofu-dim: #0d3d28;
+  --tofu-dim: #dff7eb;
   --mofu: #ff7b35;
-  --mofu-dim: #3d2210;
+  --mofu-dim: #ffe7d3;
   --bofu: #f040a0;
-  --bofu-dim: #3d1030;
-  --blue: #4d9fff;
-  --blue-dim: #0d2040;
-  --accent: #4d9fff;
+  --bofu-dim: #ffe3ef;
+  --blue: #3F52E3;
+  --blue-dim: rgba(63,82,227,0.08);
+  --accent: #3F52E3;
   --up: #10d98f;
   --down: #ff4560;
-  --neutral: #5a6a8a;
+  --neutral: #6b7a98;
   --mono: 'DM Mono', monospace;
   --sans: 'Inter', sans-serif;
   --display: 'Syne', sans-serif;
@@ -34,7 +34,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+body { font-family: var(--sans); background: linear-gradient(180deg, #3F52E3 0%, #F6F6F6 100%); color: var(--text); min-height: 100vh; }
 
 /* ── UPLOAD SCREEN ── */
 #upload-screen {
@@ -51,7 +51,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
   content: '';
   position: absolute;
   width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(77,159,255,0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(63,82,227,0.20) 0%, transparent 70%);
   top: -100px; left: -100px;
   pointer-events: none;
 }
@@ -59,7 +59,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
   content: '';
   position: absolute;
   width: 400px; height: 400px;
-  background: radial-gradient(circle, rgba(240,64,160,0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(246,246,246,0.8) 0%, transparent 70%);
   bottom: -50px; right: 0;
   pointer-events: none;
 }
